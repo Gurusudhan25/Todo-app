@@ -1,0 +1,19 @@
+<div class="add-todo">
+    <form [formGroup]="todoData">
+        <h1>{{dialogData ? "EDIT TODO":"ADD TODO"}}</h1>
+        <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Enter Todo task</mat-label>
+            <input type="text" matInput formControlName="task">
+            <mat-error *ngIf="todoData.controls['task'].errors?.['required']">It is required feild</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Enter Todo Description</mat-label>
+            <textarea matInput formControlName="description"></textarea>
+        </mat-form-field>
+
+        <button mat-raised-button color="warn" [mat-dialog-close]>Cancel</button>
+        <button mat-raised-button color="primary" [mat-dialog-close]="todoData" [disabled]="todoData.invalid">
+            {{dialogData ? "Edit Todo":"Add Todo"}}</button>
+    </form>
+</div>

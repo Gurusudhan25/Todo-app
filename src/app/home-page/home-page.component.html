@@ -1,0 +1,82 @@
+<div class="nav-bar">
+    <mat-toolbar color="primary">
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item class="menu-item" (click)="openAddDialog()">
+                <mat-icon>add</mat-icon>
+                <span>Add Todo</span>
+            </button>
+            <button mat-menu-item class="menu-item">
+                <mat-icon>star</mat-icon>
+                <span>Rate Us</span>
+            </button>
+        </mat-menu>
+        <div class="app-title">
+            <span>HABITICA</span><br>
+            <small>Be Productive</small>
+        </div>
+        <span class="example-spacer"></span>
+        <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+            <mat-icon>favorite</mat-icon>
+        </button>
+        <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+            <mat-icon>share</mat-icon>
+        </button>
+    </mat-toolbar>
+</div>
+
+<div class="tasks-parent">
+
+    <div class="data" *ngIf="! (todoQuery.isLoaded$ | async); else spin">
+        <div class="task-card-container" *ngFor="let todo of todoList ; index as i ">
+            <div *ngIf="!isEditLoading[i] else spinner">
+                <mat-card>
+                    <mat-card-header>
+                        <mat-card-title>{{todo.task}}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        {{todo.description}}
+                    </mat-card-content>
+                    <mat-card-actions>
+                        <button mat-raised-button color="dark" [class]="todo.state ? 'not-complete':'complete'"
+                            (click)="taskState(todo , i)" [disabled]="isButtonLoading[i]">
+                            {{ todo.state ? "Completed" : " Mark as complete" }}
+                            <span *ngIf="isButtonLoading[i]" class="spinner-border spinner-border-sm ml-2"
+                                role="status">
+                            </span> </button>
+                        <button *ngIf="todo.state" mat-raised-button color="dark" class="not-complete"
+                            (click)="taskRedoState(todo , i)">Redo</button>
+                        <div class="edit-menu">
+                            <button mat-icon-button [matMenuTriggerFor]="menu"
+                                aria-label="Example icon-button with a menu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                                <button mat-menu-item (click)="openEditDialog(todo , i)">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Edit</span>
+                                </button>
+                                <button mat-menu-item (click)="openDeleteDialog(todo)">
+                                    <mat-icon>delete</mat-icon>
+                                    <span>Delete</span>
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+
+            <ng-template #spinner>
+                <mat-card><mat-spinner class="edit-spinner"></mat-spinner>
+                </mat-card>
+            </ng-template>
+        </div>
+    </div>
+    <ng-template #spin>
+        <div class="spinner">
+            <mat-spinner></mat-spinner>
+        </div>
+    </ng-template>
+</div>
