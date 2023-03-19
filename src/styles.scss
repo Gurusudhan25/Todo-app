@@ -9,3 +9,12 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 @import "node_modules/bootstrap/dist/css/bootstrap.css";
+li {
+  list-style: none;
+}
+ul {
+  list-style-type: none;
+}
+button {
+  width: fit-content;
+}

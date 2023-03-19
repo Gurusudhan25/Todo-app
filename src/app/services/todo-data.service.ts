@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { HomePageComponent } from '../home-page/home-page.component';
 import { ITodoID, ITodo } from '../interfaces/todo';
 import { TodoStore } from '../state/todo.store';
 import { TodoServiceService } from './todo-service.service';
+import { flattenDeep } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +18,18 @@ export class TodoDataService {
   ) {}
 
   getAllTodo() {
+    this.todoStore.setLoading(true);
     this.todoService
       .getTodos()
       .pipe(
         tap((res: any) => {
-          this.todoStore.setLoading(true);
+          // let tagsArr: any = [];
+          // res.forEach((todo: ITodo) => {
+          //   tagsArr.push(todo.tags);
+          // });
+          // const newtagsArr = flattenDeep(tagsArr);
+          // // console.log(newtagsArr);
+
           this.todoStore.set(res);
           this.todoStore.setLoading(false);
         })
@@ -29,7 +37,7 @@ export class TodoDataService {
       .subscribe();
   }
 
-  addTodoData(todo: ITodo) {
+  addTodoData(todo: ITodo): void {
     this.todoStore.setLoading(true);
     this.todoService
       .addTodo(todo)
@@ -37,6 +45,9 @@ export class TodoDataService {
         tap(() => {
           this.todoStore.add(todo);
           this.todoStore.setLoading(false);
+        }),
+        catchError((err) => {
+          return throwError(err);
         })
       )
       .subscribe();
@@ -50,7 +61,7 @@ export class TodoDataService {
     );
   }
 
-  deleteDataTodo(id: string) {
+  deleteDataTodo(id: string): void {
     this.todoService
       .deleteTodo(id)
       .pipe(

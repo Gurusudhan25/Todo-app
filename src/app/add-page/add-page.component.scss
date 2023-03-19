@@ -1,20 +1,36 @@
 .add-todo {
-    width: 400px;
-    height: 100%;
-    text-align: center;
-    h1 {
-        margin-top: 10px;
+  width: 400px;
+  height: 100%;
+  text-align: center;
+  h1 {
+    margin-top: 10px;
+  }
+  .form-group {
+    width: 350px;
+    margin-top: 10px;
+    textarea {
+      height: 150px;
     }
-    .form-group {
-        width: 350px;
-        margin-top: 10px;
-        textarea {
-            height: 150px;
-        }
-    }
-    button {
-        margin-top: 10px;
-        margin-bottom: 20px;
-        margin-right: 20px;
-    }
+  }
+  button {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+  }
+}
+mat-chip {
+  margin-left: 3px;
+  font-size: medium;
+  span {
+    display: flex;
+    color: #673ab7;
+  }
+  mat-icon {
+    margin-left: 3px;
+  }
+}
+.chip-holder {
+  position: relative;
+  left: -100px;
+  top: -5px;
 }

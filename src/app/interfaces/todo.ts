@@ -2,7 +2,7 @@ export interface ITodo {
   task: string;
   description: string;
   state: boolean;
-  // isLoading:boolean
+  tags: string[];
 }
 
 export interface ITodoID {
@@ -10,5 +10,5 @@ export interface ITodoID {
   task: string;
   description: string;
   state: boolean;
-  isLoading: boolean;
+  tags: string[];
 }

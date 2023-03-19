@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { FormControl } from '@angular/forms';
+
 import { MatDialog } from '@angular/material/dialog';
-import { tap } from 'rxjs';
+import { flattenDeep } from 'lodash';
+import { map, tap } from 'rxjs';
+
 import { AddPageComponent } from '../add-page/add-page.component';
 import { DeleteBoxComponent } from '../delete-box/delete-box.component';
-import { ITodo, ITodoID } from '../interfaces/todo';
+import { ITodoID } from '../interfaces/todo';
 import { TodoDataService } from '../services/todo-data.service';
 import { TodoQuery } from '../state/todo.querry';
 
@@ -14,6 +18,13 @@ import { TodoQuery } from '../state/todo.querry';
 })
 export class HomePageComponent implements OnInit {
   public todoList: ITodoID[] = [];
+  public tagsList: string[] = [];
+  public emptyData: boolean = false;
+  public queryState: boolean = false;
+
+  public filterSelector: FormControl = new FormControl('');
+  public filterTag: FormControl = new FormControl('');
+
   public isEditLoading = new Array(this.todoList.length).fill(false);
   public isButtonLoading = new Array(this.todoList.length).fill(false);
 
@@ -25,8 +36,50 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.todoDataService.getAllTodo();
-    this.todoQuery.todos$.subscribe((data) => {
+    this.allTodoData();
+    this.todoQuery.tags$
+      .pipe(
+        map((todos) => {
+          const TODOS: ITodoID[] = todos;
+          const tags: string[][] = [];
+          TODOS.forEach((todo) => tags.push(todo.tags));
+          this.tagsList = flattenDeep(tags);
+        })
+      )
+      .subscribe();
+  }
+
+  filterTagged() {
+    this.todoQuery
+      .filterTagTodo(this.filterTag.value)
+      .subscribe((todo: any) => {
+        this.todoList = todo;
+      });
+  }
+
+  filteredTodo(state: boolean) {
+    this.todoQuery
+      .filteredTodo(state)
+      .pipe(
+        tap((data) => {
+          data.length
+            ? ((this.todoList = data), (this.emptyData = false))
+            : (this.emptyData = true);
+        })
+      )
+      .subscribe();
+  }
+
+  clearData() {
+    this.allTodoData();
+    this.filterTag.setValue('');
+  }
+
+  allTodoData() {
+    this.filterSelector.setValue('');
+    this.todoQuery.allTodo().subscribe((data) => {
       this.todoList = data;
+      this.emptyData = false;
     });
   }
 
@@ -37,12 +90,7 @@ export class HomePageComponent implements OnInit {
       .pipe(
         tap((todoData) => {
           if (todoData) {
-            const todoTask: ITodo = {
-              task: todoData.get('task')?.value,
-              description: todoData.get('description')?.value,
-              state: false,
-            };
-            this.todoDataService.addTodoData(todoTask);
+            this.todoDataService.addTodoData(todoData);
           }
         })
       )
@@ -55,6 +103,7 @@ export class HomePageComponent implements OnInit {
         data: {
           task: todo.task,
           description: todo.description,
+          tags: todo.tags,
         },
       })
       .afterClosed()
@@ -63,7 +112,7 @@ export class HomePageComponent implements OnInit {
           if (data) {
             this.isEditLoading[index] = true;
             this.todoDataService
-              .patchTodoData(data.value, todo.id)
+              .patchTodoData(data, todo.id)
               .subscribe(() => (this.isEditLoading[index] = false));
           }
         })
@@ -90,21 +139,8 @@ export class HomePageComponent implements OnInit {
   taskState(todo: ITodoID, index: number) {
     this.isButtonLoading[index] = true;
     const currentTodo = { ...todo };
-    currentTodo.state = true;
-    currentTodo.isLoading = true;
-    this.todoDataService
-      .patchTodoData(currentTodo, currentTodo.id)
-      .pipe(
-        tap(() => {
-          this.isButtonLoading[index] = false;
-        })
-      )
-      .subscribe();
-  }
-  taskRedoState(todo: ITodoID, index: number) {
-    this.isButtonLoading[index] = true;
-    const currentTodo = { ...todo };
-    currentTodo.state = false;
+    currentTodo.state = !currentTodo.state;
+
     this.todoDataService
       .patchTodoData(currentTodo, currentTodo.id)
       .pipe(

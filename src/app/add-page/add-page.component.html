@@ -1,19 +1,61 @@
 <div class="add-todo">
-    <form [formGroup]="todoData">
-        <h1>{{dialogData ? "EDIT TODO":"ADD TODO"}}</h1>
-        <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Enter Todo task</mat-label>
-            <input type="text" matInput formControlName="task">
-            <mat-error *ngIf="todoData.controls['task'].errors?.['required']">It is required feild</mat-error>
-        </mat-form-field>
+  <form [formGroup]="todoData">
+    <h1>{{ dialogData ? "EDIT TODO" : "ADD TODO" }}</h1>
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Enter Todo task</mat-label>
+      <input type="text" matInput formControlName="task" />
+      <mat-error *ngIf="todoData.controls['task'].errors?.['required']"
+        >It is required feild</mat-error
+      >
+    </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Enter Todo Description</mat-label>
-            <textarea matInput formControlName="description"></textarea>
-        </mat-form-field>
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Enter Todo Description</mat-label>
+      <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+    <mat-form-field class="form-group" appearance="outline">
+      <mat-label>Tags</mat-label>
+      <input
+        type="text"
+        matInput
+        [matAutocomplete]="auto"
+        formControlName="tags"
+      />
 
-        <button mat-raised-button color="warn" [mat-dialog-close]>Cancel</button>
-        <button mat-raised-button color="primary" [mat-dialog-close]="todoData" [disabled]="todoData.invalid">
-            {{dialogData ? "Edit Todo":"Add Todo"}}</button>
-    </form>
+      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+        <mat-option *ngFor="let val of filteredTags$ | async" [value]="val">{{
+          val
+        }}</mat-option>
+        <mat-divider></mat-divider>
+
+        <mat-option
+          *ngIf="
+            todoData.controls['tags'].value &&
+            !tagsArr.includes(todoData.controls['tags'].value)
+          "
+          class="add-option"
+          (click)="addTag()"
+          [value]="todoData.controls['tags'].value"
+          ><mat-icon>add</mat-icon>Create</mat-option
+        >
+      </mat-autocomplete>
+    </mat-form-field>
+    <mat-chip *ngFor="let tag of tagsArr" matSuffix>
+      <span>{{ tag }}<mat-icon (click)="removeTag(tag)">cancel</mat-icon></span>
+    </mat-chip>
+    <div class="chip-holder"></div>
+
+    <div>
+      <button mat-raised-button color="warn" [mat-dialog-close]>Cancel</button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="addTodoData()"
+        [disabled]="todoData.invalid"
+      >
+        {{ dialogData ? "Edit Todo" : "Add Todo" }}
+      </button>
+    </div>
+  </form>
 </div>

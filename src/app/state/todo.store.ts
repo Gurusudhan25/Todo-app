@@ -8,7 +8,7 @@ const InitialTodo: ITodoID[] = [
     task: '',
     description: '',
     state: false,
-    isLoading: false,
+    tags: [''],
   },
 ];
 
